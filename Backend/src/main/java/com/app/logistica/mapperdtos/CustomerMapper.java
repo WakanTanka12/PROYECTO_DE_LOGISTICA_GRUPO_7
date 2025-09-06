@@ -23,12 +23,5 @@ public class CustomerMapper {
                 customerDTO.getPhone(),
                 customerDTO.getAddress()
         );
-//        Customer customer = new Customer();
-//        customer.setId(customerDTO.getId());
-//        customer.setFirstName(customerDTO.getFirstName());
-//        customer.setLastName(customerDTO.getLastName());
-//        customer.setEmail(customerDTO.getEmail());
-//        return customer;
-
     }
 }
