@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByCustomerId(Long customerId);
-
+    boolean existsByCustomerId(String documentNumber);
+    List<Order> findAllWithCustomer();
 }

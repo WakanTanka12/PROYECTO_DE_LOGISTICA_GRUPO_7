@@ -1,5 +1,6 @@
 package com.app.logistica.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,22 +26,26 @@ public class Customer {
     private String phone;
     private String address;
 
-
-
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonBackReference
     private List<Order> orders = new ArrayList<>();
 
-
-
+    public void addOrder(Order order) {
+        orders.add(order);
+        order.setCustomer(this);
+    }
+    public void removeOrder(Order order) {
+        orders.remove(order);
+        order.setCustomer(null);
+    }
     //Constructor para el CustomerMapper
     public Customer(Long id, String firstName, String lastName, String email, String phone, String address) {
         this.id = id;
         this.firstName = firstName;
-       this.lastName = lastName;
-       this.email = email;
+        this.lastName = lastName;
+        this.email = email;
         this.phone = phone;
-       this.address = address;
+        this.address = address;
     }
 
 }

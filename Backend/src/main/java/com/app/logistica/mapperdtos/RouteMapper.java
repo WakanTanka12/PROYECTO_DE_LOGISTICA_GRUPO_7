@@ -21,7 +21,7 @@ public class RouteMapper {
                 routeDTO.getRouteName(),
                 routeDTO.getOrigin(),
                 routeDTO.getDestination(),
-               routeDTO.getDistance(),
+                routeDTO.getDistance(),
                 routeDTO.getEstimatedDuration()
         );
     }

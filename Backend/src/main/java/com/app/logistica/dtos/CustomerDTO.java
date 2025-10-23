@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -17,6 +18,8 @@ public class CustomerDTO {
     private String email;
     private String phone;
     private String address;
+
+    private List<OrderDTO> orders;
 }
 
 

@@ -1,5 +1,6 @@
 package com.app.logistica.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,8 +21,9 @@ public class Route {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-  @OneToMany(mappedBy = "route")
-   private List<Delivery> deliveries;
+    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private List<Delivery> deliveries;
 
     private String routeName;
     private String origin;
@@ -36,6 +38,5 @@ public class Route {
     this.destination = destination;
     this.distance = distance;
     this.estimatedDuration = estimatedDuration;
-
     }
 }

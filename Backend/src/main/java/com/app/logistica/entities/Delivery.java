@@ -1,5 +1,7 @@
 package com.app.logistica.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,17 +22,24 @@ public class Delivery {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-  @OneToOne(cascade = CascadeType.ALL)
-   @JoinColumn(name = "order_id")
-   private Order order;
-//
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_dependant_order"))
+    @JsonManagedReference
+    private Order order;
+
     @ManyToOne
-    @JoinColumn(name = "driver_id")
-   private Driver driver;
-//
-   @ManyToOne
-    @JoinColumn(name = "route_id")
-  private Route route;
+    @JoinColumn(name = "driver_id",
+            foreignKey = @ForeignKey(name = "fk_dependant_driver"))
+    @JsonManagedReference
+    private Driver driver;
+
+    @ManyToOne
+    @JoinColumn(name = "route_id",
+            foreignKey = @ForeignKey(name = "fk_dependant_route"))
+    @JsonManagedReference
+    private Route route;
 
     private LocalDate deliveryDate;
     private String status;

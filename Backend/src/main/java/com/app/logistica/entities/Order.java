@@ -1,5 +1,7 @@
 package com.app.logistica.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,20 +26,25 @@ public class Order {
     private LocalDate orderDate;
     private BigDecimal price;
     private String details;
-//  Order es Entidad dueña en la relacion Customer - ID, es decir que esta es
+
+//  Order es Entidad dueña en la relacion Customer - Order, es decir que esta es
 //  la que guarda la FK
-   @ManyToOne
-    @JoinColumn(name = "customer_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "customer_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_dependent_customer"))
+    @JsonManagedReference
     private Customer customer;
 
 //  Order es la entidad relacionada en la relacion Order - Delivery, es decir que
 //  su FK esta guardada en la tabla deliveries
-@OneToOne(mappedBy = "order")
- private Delivery delivery;
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private Delivery delivery;
 
-@OneToMany(mappedBy = "order")
-  private List<Package> packages;
-
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private List<Package> packages;
 
     public Order(Long id, LocalDate orderDate, BigDecimal price, String details) {
         this.id = id;

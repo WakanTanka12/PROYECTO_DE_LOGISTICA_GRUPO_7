@@ -1,6 +1,7 @@
 package com.app.logistica.entities;
 
 import com.app.logistica.entities.embedded.Dimensions;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,9 +18,12 @@ public class Package {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-   @ManyToOne
-   @JoinColumn(name = "order_id")
-  private Order order;
+    @ManyToOne
+    @JoinColumn(name = "order_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_dependant_order"))
+    @JsonManagedReference
+     private Order order;
 
     @Embedded
     private Dimensions dimensions;
