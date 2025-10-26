@@ -1,8 +1,8 @@
 import {useEffect, useState} from 'react'
-import { getAllCustomers, deleteCustomer } from '../services/CustomerService.js'
+import { getAllCustomers, deleteCustomer } from '../../services/CustomerService.js'
 import { useNavigate } from 'react-router-dom'
 
-const ListCustomerComponent = () => {
+const CustomerList = () => {
 
     /*
      *Vamos a usar el hook useState para recuperar los valores
@@ -75,4 +75,4 @@ const ListCustomerComponent = () => {
         </div>
     )
 }
-export default ListCustomerComponent
+export default CustomerList

@@ -1,8 +1,8 @@
 import {useEffect, useState} from 'react'
-import {addCustomer, getCustomer, updateCustomer} from "../services/CustomerService.js";
+import {addCustomer, getCustomer, updateCustomer} from "../../services/CustomerService.js";
 import { useNavigate, useParams } from "react-router-dom";
 
-const CustomerComponent = () => {
+const CustomerForm = () => {
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -216,4 +216,4 @@ const CustomerComponent = () => {
         </div>
     )
 }
-export default CustomerComponent
+export default CustomerForm

@@ -1,24 +1,24 @@
 
 import './App.css'
-import ListCustomerComponent from "./components/ListCustomerComponent.jsx";
+import CustomerList from "./components/Customer/CustomerList.jsx";
 import {BrowserRouter, Routes, Route } from "react-router-dom";
-import HeaderComponent from "./components/HeaderComponent.jsx";
-import FooterComponent from "./components/FooterComponent.jsx";
-import CustomerComponent from "./components/CustomerComponent.jsx";
+import Header from "./components/Layout/Header.jsx";
+import Footer from "./components/Layout/Footer.jsx";
+import CustomerForm from "./components/Customer/CustomerForm.jsx";
 
 function App() {
 
   return (
     <>
         <BrowserRouter>
-            <HeaderComponent/>
+            <Header/>
             <Routes>
-                <Route path="/" element={<ListCustomerComponent/>}></Route>
-                <Route path="/customers" element={<ListCustomerComponent/>}></Route>
-                <Route path="/add-customer" element={<CustomerComponent/>}></Route>
-                <Route path="/edit-customer/:id" element={<CustomerComponent/>}></Route>
+                <Route path="/" element={<CustomerList/>}></Route>
+                <Route path="/customers" element={<CustomerList/>}></Route>
+                <Route path="/add-customer" element={<CustomerForm/>}></Route>
+                <Route path="/edit-customer/:id" element={<CustomerForm/>}></Route>
             </Routes>
-            <FooterComponent/>
+            <Footer/>
         </BrowserRouter>
      </>
   )
