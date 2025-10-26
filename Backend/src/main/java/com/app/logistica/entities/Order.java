@@ -46,11 +46,4 @@ public class Order {
     @JsonBackReference
     private List<Package> packages;
 
-    public Order(Long id, LocalDate orderDate, BigDecimal price, String details) {
-        this.id = id;
-        this.orderDate = orderDate;
-        this.price = price;
-        this.details = details;
-
-    }
 }
