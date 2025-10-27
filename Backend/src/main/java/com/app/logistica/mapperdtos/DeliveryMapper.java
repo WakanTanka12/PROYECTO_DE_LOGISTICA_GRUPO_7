@@ -27,7 +27,10 @@ import java.util.stream.Collectors;
                        d.getDriver().getFirstName() + " " + d.getDriver().getLastName()
                );
            }
-
+           if (d.getRoute() != null) {
+               dto.setRouteId(d.getRoute().getId());
+               dto.setRouteName(d.getRoute().getRouteName());
+           }
            return dto;
        }
 

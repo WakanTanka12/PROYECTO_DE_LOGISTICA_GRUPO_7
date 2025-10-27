@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 // @OneToMany → Delivery
@@ -23,7 +24,19 @@ public class Route {
 
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
-    private List<Delivery> deliveries;
+    private List<Delivery> deliveries= new ArrayList<>();
+
+    // --- Métodos auxiliares ---
+    public void addDelivery(Delivery delivery) {
+        deliveries.add(delivery);
+        delivery.setRoute(this);
+    }
+
+    public void removeDelivery(Delivery delivery) {
+        deliveries.remove(delivery);
+        delivery.setRoute(null);
+    }
+
 
     private String routeName;
     private String origin;

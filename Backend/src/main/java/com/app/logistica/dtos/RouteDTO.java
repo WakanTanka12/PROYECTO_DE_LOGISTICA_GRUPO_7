@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -19,5 +20,8 @@ public class RouteDTO {
     private BigDecimal distance;
     private Duration estimatedDuration;
 
+    private List<DeliveryDTO> deliveries;
 
+    public RouteDTO(Long id, String routeName, String origin, String destination, BigDecimal distance, Duration estimatedDuration) {
+    }
 }

@@ -20,9 +20,5 @@ public class DriverDTO {
     private List<DeliveryDTO> deliveries;
 
 
-    public LocalDate getDeliveryDate() {
-    }
 
-    public String getStatus() {
-    }
 }

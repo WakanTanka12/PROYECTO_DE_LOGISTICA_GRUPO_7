@@ -19,5 +19,6 @@ public class DeliveryDTO {
     private Long driverId;
     private String driverFullName;
 
-
+    private Long routeId;
+    private String routeName;
 }
