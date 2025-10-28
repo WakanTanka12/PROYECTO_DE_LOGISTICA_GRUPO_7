@@ -18,7 +18,5 @@ public class OrderDTO {
     private String details;
 
     private Long customerId;
-    private String customerFullName;
-
 
 }
