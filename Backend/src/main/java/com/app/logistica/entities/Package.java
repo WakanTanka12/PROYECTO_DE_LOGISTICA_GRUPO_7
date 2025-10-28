@@ -21,7 +21,7 @@ public class Package {
     @ManyToOne
     @JoinColumn(name = "order_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "fk_dependant_order"))
+            foreignKey = @ForeignKey(name = "fk_dependant_order_2"))
     @JsonManagedReference
      private Order order;
 

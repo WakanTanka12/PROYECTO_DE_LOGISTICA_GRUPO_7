@@ -2,12 +2,13 @@ import React from 'react'
 
 const Footer = () => {
     return (
-        <div>
-            <footer className="footer">
-                <span>All Rights Reserved to Samuel Rocha 2025</span>
-            </footer>
-        </div>
-    )
-}
+        <footer className="bg-primary text-white mt-auto py-3 shadow-sm">
+            <div className="container text-center small">
+                <span>©{new Date().getFullYear()} Property Rights - Wakan Tanka</span>
+            </div>
+        </footer>
+    );
+};
+
 export default Footer
 

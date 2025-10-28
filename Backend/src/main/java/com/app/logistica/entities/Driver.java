@@ -34,12 +34,9 @@ public class Driver {
         delivery.setDriver(null);
     }
 
-
-
     private String firstName;
     private String lastName;
     private Boolean free;
-
 
     public Driver(Long id, String firstName, String lastName, Boolean free) {
         this.id = id;

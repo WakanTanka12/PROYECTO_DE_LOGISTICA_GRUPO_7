@@ -43,7 +43,53 @@ const OrderList = () => {
 
     return (
         <div className= "container mt-4">
+            <h2>Order List</h2>
+            <button
+                className="btn btn-primary mb-3"
+                onClick={() => navigate("/orders/add")}
+            >
+                Add Order
+            </button>
 
+            <table className="table table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Order Date</th>
+                    <th>Price</th>
+                    <th>Details</th>
+                    <th>Customer</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {orders.map((order) => (
+                    <tr key={order.id}>
+                        <td>{order.id}</td>
+                        <td>{order.orderDate}</td>
+                        <td>{order.price}</td>
+                        <td>{order.details}</td>
+                        <td>{order.customerFullName}</td>
+                        <td>
+                            <button
+                                onClick={() => navigate(`/orders/edit/${order.id}`)}
+                                className="btn btn-warning btn-sm me-2"
+                            >
+                                Edit
+                            </button>
+                            <button
+                                onClick={() => handleDelete(order.id)}
+                                className="btn btn-danger btn-sm"
+                            >
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                ))}
+                </tbody>
+            </table>
         </div>
-    )
-}
+    );
+};
+
+export default OrderList;

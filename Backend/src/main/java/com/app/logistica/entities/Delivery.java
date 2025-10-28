@@ -36,12 +36,6 @@ public class Delivery {
     @JsonManagedReference
     private Driver driver;
 
-
-
-
-
-
-
     @ManyToOne
     @JoinColumn(name = "route_id",
             foreignKey = @ForeignKey(name = "fk_dependant_route"))
