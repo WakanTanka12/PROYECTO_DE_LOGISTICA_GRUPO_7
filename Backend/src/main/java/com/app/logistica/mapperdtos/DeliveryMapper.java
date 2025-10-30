@@ -23,13 +23,10 @@ import java.util.stream.Collectors;
            // 🔹 Incluye datos del conductor (nombre y ID)
            if (d.getDriver() != null) {
                dto.setDriverId(d.getDriver().getId());
-               dto.setDriverFullName(
-                       d.getDriver().getFirstName() + " " + d.getDriver().getLastName()
-               );
+
            }
            if (d.getRoute() != null) {
                dto.setRouteId(d.getRoute().getId());
-               dto.setRouteName(d.getRoute().getRouteName());
            }
            return dto;
        }
