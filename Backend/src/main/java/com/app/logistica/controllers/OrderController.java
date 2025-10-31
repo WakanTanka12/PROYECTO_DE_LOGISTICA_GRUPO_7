@@ -39,7 +39,7 @@ public class OrderController {
         if(orderDTO.getCustomerId() == null){
             return ResponseEntity.badRequest().build();
         }
-        OrderDTO created = orderService.addToCustomer(orderDTO.getCustomerId(), orderDTO);
+        OrderDTO created = orderService.createOrder(orderDTO.getCustomerId(), orderDTO);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 

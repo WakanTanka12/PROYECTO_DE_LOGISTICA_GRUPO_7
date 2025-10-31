@@ -8,7 +8,6 @@ import com.app.logistica.repositories.CustomerRepository;
 import com.app.logistica.repositories.OrderRepository;
 import com.app.logistica.services.OrderService;
 import com.app.logistica.mapperdtos.OrderMapper;
-import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,7 +43,7 @@ public class OrderServiceImpl implements OrderService {
                 .map(OrderMapper::mapOrderToOrderDTO)
                 .collect(Collectors.toList());
     }
-
+/*
     @Override
     public OrderDTO addToCustomer(Long customerId, OrderDTO orderDTO) {
         Customer customer = verifyCustomer(customerId);
@@ -54,6 +53,22 @@ public class OrderServiceImpl implements OrderService {
 
         orderRepository.save(order);
         return OrderMapper.mapOrderToOrderDTO(order);
+    }
+    */
+    @Override
+    public OrderDTO createOrder(Long customerId, OrderDTO orderDTO) {
+        // 1️⃣ Verificar que el cliente exista
+        Customer customer = verifyCustomer(customerId);
+
+        // 2️⃣ Mapear el DTO a la entidad
+        Order order = OrderMapper.mapOrderDTOtoOrder(orderDTO);
+
+        // 3️⃣ Asociar el cliente a la orden
+        order.setCustomer(customer);
+
+        // 5️⃣ Guardar y devolver el DTO
+        Order savedOrder = orderRepository.save(order);
+        return OrderMapper.mapOrderToOrderDTO(savedOrder);
     }
 
     @Override
