@@ -1,152 +1,161 @@
-import React, {useState, useEffect} from 'react';
-import {useNavigate, useParams} from "react-router-dom";
-import Swal from "sweetalert2"
-import{
-    createOrder,
-    getOrderById,
-    updateOrder,
-} from "../../services/OrderService.js";
-import {getAllCustomers} from "../../services/CustomerService.js";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
+import { createOrder, updateOrder, getOrderById } from "../../services/OrderService";
+import { getAllCustomers } from "../../services/CustomerService";
 
 const OrderForm = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+
     const [order, setOrder] = useState({
         orderDate: "",
         price: "",
         details: "",
-        customerId: ""
+        customerId: "",
     });
 
-    const [customer, setCustomer] = useState({});
-    const {id} = useParams();
-    const navigate = useNavigate();
+    // 👇 aseguramos que sea array vacío
+    const [customers, setCustomers] = useState([]);
 
     useEffect(() => {
         loadCustomers();
         if (id) loadOrder();
-        },[id]);
+    }, [id]);
 
     const loadCustomers = async () => {
         try {
-            const response = await getAllCustomers();
-            setCustomer(response.data);
+            const res = await getAllCustomers();
+            console.log("Customers response:", res.data);
+
+            // ✅ protección contra estructuras inesperadas
+            const list = Array.isArray(res.data)
+                ? res.data
+                : res.data?.content || res.data?.data || [];
+
+            setCustomers(list);
         } catch (error) {
-            console.error("Error loading customers", error);
-            Swal.fire("Error", "Error loading customers.", "error");
+            console.error("Error loading customers:", error);
+            Swal.fire("Error", "Failed to load customers", "error");
         }
     };
 
     const loadOrder = async () => {
         try {
-            const response = await getOrderById(id);
-            const data = response.data;
+            const res = await getOrderById(id);
+            const o = res.data;
             setOrder({
-                orderDate: data.orderDate || "",
-                price: data.price || "",
-                details: data.details || "",
-                customerId: data.customerId || "",
+                orderDate: o.orderDate || "",
+                price: o.price ?? "",
+                details: o.details || "",
+                customerId: o.customerId || "",
             });
         } catch (error) {
-            console.error("Error loading order", error);
-            Swal.fire("Error", "Error loading order.", "error");
+            console.error("Error loading order:", error);
+            Swal.fire("Error", "Failed to load order data", "error");
         }
     };
 
     const handleChange = (e) => {
-        const {name, value, type, checked} = e.target;
-        setOrder({
-            ...order,
-            [name]: type === "checkbox" ? checked : value,
-        });
+        const { name, value } = e.target;
+        setOrder({ ...order, [name]: value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         const payload = {
-            orderDate: order.orderDate,
-            price: order.price,
-            details: order.details || null,
+            orderDate: order.orderDate || null,
+            price: order.price !== "" ? Number(order.price) : null,
+            details: order.details,
+            customerId: order.customerId ? Number(order.customerId) : null,
         };
 
         try {
-            if(id) {
+            if (id) {
                 await updateOrder(id, payload);
-                Swal.fire("Updated", "Order successfully updated", "success");
+                Swal.fire("Updated", "Order updated successfully", "success");
             } else {
                 await createOrder(payload);
-                Swal.fire("Created", "Order successfully created", "success");
+                Swal.fire("Created", "Order created successfully", "success");
             }
             navigate("/orders");
         } catch (error) {
-            console.error("Error loading order", error);
-            Swal.fire("Error", "Failed to save Order", "error");
+            console.error("Error saving order:", error);
+            Swal.fire("Error", "Failed to save order", "error");
         }
     };
 
     return (
-        <div className = "container mt-4">
+        <div className="container mt-4">
             <h2>{id ? "Edit Order" : "Add Order"}</h2>
             <form onSubmit={handleSubmit}>
+                {/* Order Date */}
                 <div className="mb-3">
                     <label className="form-label">Order Date</label>
                     <input
                         type="date"
-                        name="orderDate"
                         className="form-control"
-                        value={order.orderDate}
+                        name="orderDate"
+                        value={order.orderDate || ""}
                         onChange={handleChange}
-                        required
                     />
                 </div>
 
+                {/* Price */}
                 <div className="mb-3">
                     <label className="form-label">Price</label>
                     <input
                         type="number"
-                        name="Price"
+                        step="0.01"
                         className="form-control"
+                        name="price"
                         value={order.price}
                         onChange={handleChange}
-                        required
                     />
                 </div>
 
+                {/* Details */}
                 <div className="mb-3">
                     <label className="form-label">Details</label>
-                    <input
-                        type="text"
-                        name="Details"
+                    <textarea
                         className="form-control"
-                        value={order.details || ""}
+                        rows="3"
+                        name="details"
+                        value={order.details}
                         onChange={handleChange}
                     />
                 </div>
 
+                {/* Customer */}
                 <div className="mb-3">
                     <label className="form-label">Customer</label>
                     <select
-                        name = "customerId"
                         className="form-select"
-                        value={order.customerId}
+                        name="customerId"
+                        value={order.customerId || ""}
                         onChange={handleChange}
                         required
                     >
                         <option value="">-- Select Customer --</option>
-                        {customer.map((customer) => (
-                            <option key = {customer.id} value = {customer.id}>
-                                {customer.firstName} {customer.lastName}
-                            </option>
-                        ))}
+
+                        {/* ✅ protección en el render */}
+                        {Array.isArray(customers) &&
+                            customers.map((c) => (
+                                <option key={c.id} value={c.id}>
+                                    {`${c.firstName} ${c.lastName}`}
+                                </option>
+                            ))}
                     </select>
                 </div>
 
-                <button type = "submit" className="btn btn-success me-2">
+                <button type="submit" className="btn btn-success me-2">
                     Save
                 </button>
                 <button
-                type = "button"
-                className="btn btn-secondary"
-                onClick={() => navigate("/orders")}
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => navigate("/orders")}
                 >
                     Cancel
                 </button>
