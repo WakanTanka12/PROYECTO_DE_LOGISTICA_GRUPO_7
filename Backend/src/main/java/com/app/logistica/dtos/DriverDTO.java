@@ -16,7 +16,6 @@ public class DriverDTO {
     private Long id;
     private String firstName;
     private String lastName;
-    private Boolean free;
     private List<DeliveryDTO> deliveries;
 
 

@@ -144,7 +144,7 @@ const DeliveryForm = () => {
                         <option value="">-- Select Driver --</option>
                         {drivers.map((d) => (
                             <option key={d.id} value={d.id}>
-                                {`#${d.id} — ${d.firstName} ${d.lastName} ${d.free ? "(free)" : ""}`}
+                                {`#${d.id} — ${d.firstName} ${d.lastName}`}
                             </option>
                         ))}
                     </select>

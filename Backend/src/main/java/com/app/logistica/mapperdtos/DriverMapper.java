@@ -25,8 +25,6 @@ public class DriverMapper {
         dto.setId(driver.getId());
         dto.setFirstName(driver.getFirstName());
         dto.setLastName(driver.getLastName());
-        dto.setFree(driver.getFree());
-
 
         dto.setDeliveries(deliveryDTOs);
 
@@ -40,7 +38,6 @@ public class DriverMapper {
         d.setId(driverDTO.getId());
         d.setFirstName(driverDTO.getFirstName());
         d.setLastName(driverDTO.getLastName());
-        d.setFree(driverDTO.getFree());
 
 // Deliveries -> Entities (bidirectional)
         if (driverDTO.getDeliveries() != null) {

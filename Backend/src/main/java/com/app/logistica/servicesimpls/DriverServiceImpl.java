@@ -37,7 +37,6 @@ public class DriverServiceImpl implements DriverService {
 
         driver.setFirstName(driverDTO.getFirstName());
         driver.setLastName(driverDTO.getLastName());
-        driver.setFree(driverDTO.getFree());
 
 // --- Limpia las entregas anteriores ---
         driver.getDeliveries().forEach(d -> d.setDriver(null));

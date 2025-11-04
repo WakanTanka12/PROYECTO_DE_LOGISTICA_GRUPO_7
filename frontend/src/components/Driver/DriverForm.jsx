@@ -10,7 +10,6 @@ const DriverForm = () => {
     const [driver, setDriver] = useState({
         firstName: "",
         lastName: "",
-        free: true,
     });
 
     useEffect(() => {
@@ -24,7 +23,6 @@ const DriverForm = () => {
             setDriver({
                 firstName: d.firstName || "",
                 lastName: d.lastName || "",
-                free: d.free ?? true,
             });
         } catch (e) {
             console.error(e);
@@ -71,10 +69,7 @@ const DriverForm = () => {
                     <label className="form-label">Last Name</label>
                     <input className="form-control" name="lastName" value={driver.lastName} onChange={handleChange} required />
                 </div>
-                <div className="form-check mb-3">
-                    <input className="form-check-input" type="checkbox" id="freeCheck" name="free" checked={driver.free} onChange={handleChange} />
-                    <label className="form-check-label" htmlFor="freeCheck">Available (free)</label>
-                </div>
+
                 <button type="submit" className="btn btn-success me-2">Save</button>
                 <button type="button" className="btn btn-secondary" onClick={() => navigate("/drivers")}>Cancel</button>
             </form>

@@ -111,6 +111,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(dto.getDriverId() != null && !dto.getDriverId().equals(delivery.getDriver().getId())) {
             Driver driver = verifyDriver(dto.getDriverId());
             delivery.setDriver(driver);
+        } else {
+            delivery.setDriver(null);
         }
 
         if (dto.getRouteId() != null) {
@@ -144,6 +146,12 @@ public class DeliveryServiceImpl implements DeliveryService {
             throw new IllegalArgumentException("La entrega no pertenece a este conductor.");
         }
 
+        Order order = delivery.getOrder();
+
+        if (order != null) {
+            order.setDelivery(null);
+        }
+        delivery.setOrder(null);
         deliveryRepository.delete(delivery);
     }
 
@@ -152,10 +160,18 @@ public class DeliveryServiceImpl implements DeliveryService {
 // ===============================================================
     @Override
     public void deleteById(Long deliveryId) {
+        Delivery delivery = deliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado con id=" + deliveryId));
         if (!deliveryRepository.existsById(deliveryId)) {
             throw new ResourceNotFoundException("Delivery no encontrado con id=" + deliveryId);
         }
-        deliveryRepository.deleteById(deliveryId);
+
+        Order order = delivery.getOrder();
+        if(order != null) {
+            order.setDelivery(null);
+        }
+        delivery.setOrder(null);
+        deliveryRepository.delete(delivery);
     }
 
     // ===============================================================

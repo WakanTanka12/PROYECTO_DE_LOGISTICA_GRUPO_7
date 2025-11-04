@@ -20,7 +20,7 @@ public class Driver {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "driver")
     @JsonBackReference
     private List<Delivery> deliveries= new ArrayList<>();;
 
@@ -36,14 +36,11 @@ public class Driver {
 
     private String firstName;
     private String lastName;
-    private Boolean free;
 
     public Driver(Long id, String firstName, String lastName, Boolean free) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.free = free;
-
     }
 
 
