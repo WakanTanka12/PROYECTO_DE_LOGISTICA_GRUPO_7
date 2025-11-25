@@ -1,0 +1,223 @@
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import {
+  getAllDrivers,
+  createDriver,
+  updateDriver,
+  deleteDriver,
+} from "../api/driversApi";
+
+export default function DriversScreen() {
+  const [drivers, setDrivers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    id: null,
+    name: "",
+    phone: "",
+    vehiclePlate: "",
+  });
+
+  const loadDrivers = async () => {
+    try {
+      setLoading(true);
+      const res = await getAllDrivers();
+      setDrivers(res.data);
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Error", "No se pudieron cargar los conductores");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDrivers();
+  }, []);
+
+  const handleEdit = (driver) => {
+    setForm({
+      id: driver.id,
+      name: driver.name || "",
+      phone: driver.phone || "",
+      vehiclePlate: driver.vehiclePlate || "",
+    });
+  };
+
+  const handleDelete = (id) => {
+    Alert.alert("Confirmar", "¿Eliminar este conductor?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Eliminar",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteDriver(id);
+            await loadDrivers();
+          } catch (err) {
+            console.error(err);
+            Alert.alert("Error", "No se pudo eliminar el conductor");
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleSubmit = async () => {
+    if (!form.name) {
+      Alert.alert("Error", "El nombre es obligatorio");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const payload = {
+        name: form.name,
+        phone: form.phone,
+        vehiclePlate: form.vehiclePlate,
+      };
+
+      if (form.id) {
+        await updateDriver(form.id, payload);
+      } else {
+        await createDriver(payload);
+      }
+
+      setForm({ id: null, name: "", phone: "", vehiclePlate: "" });
+      await loadDrivers();
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Error", "No se pudo guardar el conductor");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      <Text style={styles.title}>{item.name}</Text>
+      {item.phone && <Text style={styles.text}>Teléfono: {item.phone}</Text>}
+      {item.vehiclePlate && (
+        <Text style={styles.text}>Placa: {item.vehiclePlate}</Text>
+      )}
+
+      <View style={styles.row}>
+        <TouchableOpacity
+          style={[styles.button, styles.editButton]}
+          onPress={() => handleEdit(item)}
+        >
+          <Text style={styles.buttonText}>Editar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.deleteButton]}
+          onPress={() => handleDelete(item.id)}
+        >
+          <Text style={styles.buttonText}>Eliminar</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>Conductores</Text>
+      {loading ? (
+        <ActivityIndicator size="large" />
+      ) : (
+        <FlatList
+          data={drivers}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingBottom: 140 }}
+        />
+      )}
+
+      <View style={styles.formContainer}>
+        <Text style={styles.formTitle}>
+          {form.id ? "Editar conductor" : "Nuevo conductor"}
+        </Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre"
+          value={form.name}
+          onChangeText={(text) => setForm((f) => ({ ...f, name: text }))}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Teléfono"
+          value={form.phone}
+          onChangeText={(text) => setForm((f) => ({ ...f, phone: text }))}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Placa del vehículo"
+          value={form.vehiclePlate}
+          onChangeText={(text) => setForm((f) => ({ ...f, vehiclePlate: text }))}
+        />
+        <TouchableOpacity
+          style={[styles.button, styles.saveButton]}
+          onPress={handleSubmit}
+          disabled={saving}
+        >
+          <Text style={styles.buttonText}>
+            {saving ? "Guardando..." : form.id ? "Actualizar" : "Crear"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 12, backgroundColor: "#f5f5f5" },
+  header: { fontSize: 22, fontWeight: "bold", marginBottom: 8 },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 8,
+    elevation: 2,
+  },
+  title: { fontSize: 16, fontWeight: "bold" },
+  text: { fontSize: 14, color: "#555" },
+  row: { flexDirection: "row", marginTop: 8, justifyContent: "flex-end" },
+  button: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    marginLeft: 8,
+  },
+  editButton: { backgroundColor: "#2A4B9A" },
+  deleteButton: { backgroundColor: "#d9534f" },
+  buttonText: { color: "#fff", fontWeight: "bold" },
+  formContainer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "#fff",
+    padding: 12,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    elevation: 10,
+  },
+  formTitle: { fontSize: 16, fontWeight: "bold", marginBottom: 8 },
+  input: {
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    marginBottom: 8,
+  },
+  saveButton: { backgroundColor: "#28a745", marginTop: 4 },
+});
