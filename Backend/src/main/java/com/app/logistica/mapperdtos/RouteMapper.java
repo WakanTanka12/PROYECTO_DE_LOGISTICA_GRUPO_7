@@ -21,7 +21,7 @@ public interface RouteMapper {
         if (route.getDeliveries() != null) {
             dto.setDeliveries(route.getDeliveries()
                     .stream()
-                    .map(DeliveryMapper::toDTO)
+                    .map(DeliveryMapper::toResponse)
                     .collect(Collectors.toList()));
         }
 

@@ -17,7 +17,7 @@ public interface DriverMapper {
         if (driver.getDeliveries() != null) {
             deliveryRequests = driver.getDeliveries()
                     .stream()
-                    .map(DeliveryMapper::toDTO)
+                    .map(DeliveryMapper::toResponse)
                     .collect(Collectors.toList());
         }
 
