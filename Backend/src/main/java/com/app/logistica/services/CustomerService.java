@@ -1,13 +1,14 @@
 package com.app.logistica.services;
 
 import com.app.logistica.dtos.customer.CustomerRequest;
+import com.app.logistica.dtos.customer.CustomerResponse;
 
 import java.util.List;
 
 public interface CustomerService {
-    CustomerRequest createCustomer(CustomerRequest customerRequest);
-    CustomerRequest updateCustomer(Long customerId, CustomerRequest customerRequest);
+    CustomerResponse createCustomer(CustomerRequest customerRequest);
+    CustomerResponse updateCustomer(Long customerId, CustomerRequest customerRequest);
     String deleteCustomer(Long customerId);
-    CustomerRequest getCustomer(Long customerId);
-    List<CustomerRequest> getAllCustomers();
+    CustomerResponse getCustomer(Long customerId);
+    List<CustomerResponse> getAllCustomers();
 }
