@@ -48,10 +48,10 @@ export default function PackagesScreen() {
     const handleEdit = (pkg) => {
         setForm({
             id: pkg.id,
-            length: String(pkg.dimensions?.length || ""),
-            width: String(pkg.dimensions?.width || ""),
-            height: String(pkg.dimensions?.height || ""),
-            weight: String(pkg.weight || ""),
+            length: String(pkg.length ?? ""),
+            width: String(pkg.width ?? ""),
+            height: String(pkg.height ?? ""),
+            weight: String(pkg.weight ?? ""),
         });
     };
 
@@ -80,15 +80,13 @@ export default function PackagesScreen() {
             return;
         }
 
-        const dimensions = {
+        const payload = {
             length: parseFloat(form.length),
             width: parseFloat(form.width),
             height: parseFloat(form.height),
-        };
-
-        const payload = {
-            dimensions,
             weight: parseFloat(form.weight),
+            // ⚠️ Si tu API exige orderId aquí, deberías agregarlo:
+            // orderId: X
         };
 
         try {
@@ -119,13 +117,18 @@ export default function PackagesScreen() {
     const renderItem = ({ item }) => (
         <View style={styles.card}>
             <Text style={styles.title}>Paquete #{item.id}</Text>
-            {item.dimensions && (
-                <Text style={styles.text}>
-                    Dimensiones: {item.dimensions.length} x {item.dimensions.width} x {item.dimensions.height}
-                </Text>
-            )}
+
+            <Text style={styles.text}>
+                Dimensiones: {item.length} x {item.width} x {item.height}
+            </Text>
+
             {item.weight != null && (
                 <Text style={styles.text}>Peso: {item.weight} kg</Text>
+            )}
+
+            {/* Si quieres mostrar orderId */}
+            {item.orderId && (
+                <Text style={styles.text}>Order ID: {item.orderId}</Text>
             )}
 
             <View style={styles.row}>
@@ -159,37 +162,45 @@ export default function PackagesScreen() {
                 />
             )}
 
-            <View style={styles.formContainer}>
+            <View className="formContainer" style={styles.formContainer}>
                 <Text style={styles.formTitle}>
                     {form.id ? "Editar paquete" : "Nuevo paquete"}
                 </Text>
                 <TextInput
                     style={styles.input}
-                    placeholder="Longitud (cm)"
+                    placeholder="Longitud"
                     value={form.length}
                     keyboardType="numeric"
-                    onChangeText={(text) => setForm((f) => ({ ...f, length: text }))}
+                    onChangeText={(text) =>
+                        setForm((f) => ({ ...f, length: text }))
+                    }
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder="Ancho (cm)"
+                    placeholder="Ancho"
                     value={form.width}
                     keyboardType="numeric"
-                    onChangeText={(text) => setForm((f) => ({ ...f, width: text }))}
+                    onChangeText={(text) =>
+                        setForm((f) => ({ ...f, width: text }))
+                    }
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder="Altura (cm)"
+                    placeholder="Altura"
                     value={form.height}
                     keyboardType="numeric"
-                    onChangeText={(text) => setForm((f) => ({ ...f, height: text }))}
+                    onChangeText={(text) =>
+                        setForm((f) => ({ ...f, height: text }))
+                    }
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder="Peso (kg)"
+                    placeholder="Peso"
                     value={form.weight}
                     keyboardType="numeric"
-                    onChangeText={(text) => setForm((f) => ({ ...f, weight: text }))}
+                    onChangeText={(text) =>
+                        setForm((f) => ({ ...f, weight: text }))
+                    }
                 />
                 <TouchableOpacity
                     style={[styles.button, styles.saveButton]}
@@ -197,7 +208,11 @@ export default function PackagesScreen() {
                     disabled={saving}
                 >
                     <Text style={styles.buttonText}>
-                        {saving ? "Guardando..." : form.id ? "Actualizar" : "Crear"}
+                        {saving
+                            ? "Guardando..."
+                            : form.id
+                                ? "Actualizar"
+                                : "Crear"}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -249,4 +264,3 @@ const styles = StyleSheet.create({
     },
     saveButton: { backgroundColor: "#28a745", marginTop: 4 },
 });
-
