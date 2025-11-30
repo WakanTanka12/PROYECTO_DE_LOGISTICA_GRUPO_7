@@ -1,26 +1,27 @@
 package com.app.logistica.services;
 
 import com.app.logistica.dtos.delivery.DeliveryRequest;
+import com.app.logistica.dtos.delivery.DeliveryResponse;
 
 import java.util.List;
 
 public interface DeliveryService {
     // 🔹 Listar todos los deliveries
-    List<DeliveryRequest> listAll();
+    List<DeliveryResponse> listAll();
 
     // 🔹 Listar deliveries por conductor
-    List<DeliveryRequest> listByDriver(Long driverId);
+    List<DeliveryResponse> listByDriver(Long driverId);
 
     // 🔹 Agregar delivery a un conductor
-    DeliveryRequest addToDriver(Long driverId, DeliveryRequest dto);
+    DeliveryResponse addToDriver(Long driverId, DeliveryRequest dto);
 
     // 🔹 Obtener delivery por ID
-    DeliveryRequest getById(Long deliveryId);
+    DeliveryResponse getById(Long deliveryId);
 
     // ===============================================================
 // 🔹 Update delivery (by driver and delivery ID)
 // ===============================================================
-    DeliveryRequest update(Long deliveryId, DeliveryRequest dto);
+    DeliveryResponse update(Long deliveryId, DeliveryRequest dto);
 
     // 🔹 Eliminar delivery de un conductor
     void remove(Long deliveryId, Long driverId);

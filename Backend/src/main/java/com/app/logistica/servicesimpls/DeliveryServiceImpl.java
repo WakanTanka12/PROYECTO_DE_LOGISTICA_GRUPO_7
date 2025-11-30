@@ -1,6 +1,7 @@
 package com.app.logistica.servicesimpls;
 
 import com.app.logistica.dtos.delivery.DeliveryRequest;
+import com.app.logistica.dtos.delivery.DeliveryResponse;
 import com.app.logistica.entities.Delivery;
 import com.app.logistica.entities.Driver;
 import com.app.logistica.entities.Order;
@@ -34,7 +35,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<DeliveryRequest> listAll() {
+    public List<DeliveryResponse> listAll() {
         return deliveryRepository.findAll()
                 .stream()
                 .map(DeliveryMapper::toResponse)
@@ -46,7 +47,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 // ===============================================================
     @Override
     @Transactional(readOnly = true)
-    public List<DeliveryRequest> listByDriver(Long driverId) {
+    public List<DeliveryResponse> listByDriver(Long driverId) {
         // Si driverId es null, devuelve todos
         if (driverId == null) {
             return listAll();
@@ -64,7 +65,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 // 🔹 Add delivery to driver
 // ===============================================================
     @Override
-    public DeliveryRequest addToDriver(Long driverId, DeliveryRequest dto) {
+    public DeliveryResponse addToDriver(Long driverId, DeliveryRequest dto) {
         Driver driver = verifyDriver(driverId);
 
         Order order = orderRepository.findById(dto.getOrderId())
@@ -91,7 +92,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 // ===============================================================
     @Override
     @Transactional(readOnly = true)
-    public DeliveryRequest getById(Long deliveryId) {
+    public DeliveryResponse getById(Long deliveryId) {
         Delivery delivery = deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado con id=" + deliveryId));
         return DeliveryMapper.toResponse(delivery);
@@ -100,7 +101,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 // 🔹 Update delivery (by driver and delivery ID)
 // ===============================================================
     @Override
-    public DeliveryRequest update(Long deliveryId, DeliveryRequest dto) {
+    public DeliveryResponse update(Long deliveryId, DeliveryRequest dto) {
         Delivery delivery = deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado con id=" + dto.getId()));
 
