@@ -13,14 +13,12 @@ import com.app.logistica.repositories.DriverRepository;
 import com.app.logistica.repositories.OrderRepository;
 import com.app.logistica.repositories.RouteRepository;
 import com.app.logistica.services.DeliveryService;
-import org.springframework.transaction.annotation.Transactional;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -32,41 +30,39 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final OrderRepository orderRepository;
     private final RouteRepository routeRepository;
 
+    // ✅ Inyección del Mapper (clave para que funcione @Mapper(componentModel = "spring"))
+    private final DeliveryMapper deliveryMapper;
 
     @Override
     @Transactional(readOnly = true)
     public List<DeliveryResponse> listAll() {
         return deliveryRepository.findAll()
                 .stream()
-                .map(DeliveryMapper::toResponse)
+                .map(deliveryMapper::toResponse) // ✅ Usa la instancia inyectada
                 .collect(Collectors.toList());
     }
 
-    // ===============================================================
-// 🔹 List deliveries by driver (para /api/drivers/{id}/deliveries)
-// ===============================================================
     @Override
     @Transactional(readOnly = true)
     public List<DeliveryResponse> listByDriver(Long driverId) {
-        // Si driverId es null, devuelve todos
-        if (driverId == null) {
-            return listAll();
-        }
+        if (driverId == null) return listAll();
 
-        verifyDriver(driverId);
+        // Verificar que el chofer exista
+        if (!driverRepository.existsById(driverId)) {
+            throw new ResourceNotFoundException("Driver not found with id: " + driverId);
+        }
 
         return deliveryRepository.findByDriverId(driverId)
                 .stream()
-                .map(DeliveryMapper::toResponse)
+                .map(deliveryMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
-    // ===============================================================
-// 🔹 Add delivery to driver
-// ===============================================================
     @Override
     public DeliveryResponse addToDriver(Long driverId, DeliveryRequest dto) {
-        Driver driver = verifyDriver(driverId);
+        // 1. Obtener Entidades Relacionadas
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new ResourceNotFoundException("Driver not found with id: " + driverId));
 
         Order order = orderRepository.findById(dto.getOrderId())
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + dto.getOrderId()));
@@ -77,110 +73,91 @@ public class DeliveryServiceImpl implements DeliveryService {
                     .orElseThrow(() -> new ResourceNotFoundException("Route not found with id: " + dto.getRouteId()));
         }
 
-        Delivery delivery = DeliveryMapper.toEntity(dto);
+        // 2. Crear la entidad base desde el DTO
+        Delivery delivery = deliveryMapper.toEntity(dto);
 
+        // 3. Asignar relaciones manualmente (ya que el mapper es una interfaz simple)
         delivery.setDriver(driver);
         delivery.setOrder(order);
         delivery.setRoute(route);
 
+        // 4. Guardar y responder
         Delivery saved = deliveryRepository.save(delivery);
-        return DeliveryMapper.toResponse(saved);
+        return deliveryMapper.toResponse(saved);
     }
 
-    // ===============================================================
-// 🔹 Get delivery by ID
-// ===============================================================
     @Override
     @Transactional(readOnly = true)
     public DeliveryResponse getById(Long deliveryId) {
         Delivery delivery = deliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado con id=" + deliveryId));
-        return DeliveryMapper.toResponse(delivery);
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery not found with id: " + deliveryId));
+        return deliveryMapper.toResponse(delivery);
     }
-    // ===============================================================
-// 🔹 Update delivery (by driver and delivery ID)
-// ===============================================================
+
     @Override
     public DeliveryResponse update(Long deliveryId, DeliveryRequest dto) {
+        // 1. Buscar la entrega existente
         Delivery delivery = deliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado con id=" + dto.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery not found with id: " + deliveryId));
 
+        // 2. Actualizar campos simples
         delivery.setDeliveryDate(dto.getDeliveryDate());
         delivery.setStatus(dto.getStatus());
 
-        //Actualizar Driver (si cambió)
-        if(dto.getDriverId() != null && !dto.getDriverId().equals(delivery.getDriver().getId())) {
-            Driver driver = verifyDriver(dto.getDriverId());
-            delivery.setDriver(driver);
+        // 3. Actualizar Driver si cambió
+        if (dto.getDriverId() != null) {
+            if (delivery.getDriver() == null || !dto.getDriverId().equals(delivery.getDriver().getId())) {
+                Driver driver = driverRepository.findById(dto.getDriverId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Driver not found: " + dto.getDriverId()));
+                delivery.setDriver(driver);
+            }
         } else {
-            delivery.setDriver(null);
+            delivery.setDriver(null); // Desasignar si viene nulo
         }
 
+        // 4. Actualizar Route si cambió
         if (dto.getRouteId() != null) {
             if (delivery.getRoute() == null || !dto.getRouteId().equals(delivery.getRoute().getId())) {
                 Route route = routeRepository.findById(dto.getRouteId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Route not found with id: " + dto.getRouteId()));
+                        .orElseThrow(() -> new ResourceNotFoundException("Route not found: " + dto.getRouteId()));
                 delivery.setRoute(route);
             }
         } else {
             delivery.setRoute(null);
         }
 
+        // 5. Guardar cambios
         Delivery updated = deliveryRepository.save(delivery);
-        return DeliveryMapper.toResponse(updated);
+        return deliveryMapper.toResponse(updated);
     }
 
-
-
-
-    // ===============================================================
-// 🔹 Remove delivery (nested route)
-// ===============================================================
     @Override
-    public void remove(Long driverId, Long deliveryId) {
-        Driver driver = verifyDriver(driverId);
-
+    public void remove(Long deliveryId, Long driverId) {
         Delivery delivery = deliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado con id=" + deliveryId));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery not found with id: " + deliveryId));
 
-        if (!delivery.getDriver().getId().equals(driver.getId())) {
+        // Validar que pertenezca al chofer
+        if (delivery.getDriver() != null && !delivery.getDriver().getId().equals(driverId)) {
             throw new IllegalArgumentException("La entrega no pertenece a este conductor.");
         }
 
-        Order order = delivery.getOrder();
-
-        if (order != null) {
-            order.setDelivery(null);
+        // Romper relaciones antes de borrar para evitar errores de integridad
+        if (delivery.getOrder() != null) {
+            delivery.getOrder().setDelivery(null);
         }
-        delivery.setOrder(null);
+
         deliveryRepository.delete(delivery);
     }
 
-    // ===============================================================
-// 🔹 Delete delivery directly by ID (for /api/deliveries/{id})
-// ===============================================================
     @Override
     public void deleteById(Long deliveryId) {
         Delivery delivery = deliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado con id=" + deliveryId));
-        if (!deliveryRepository.existsById(deliveryId)) {
-            throw new ResourceNotFoundException("Delivery no encontrado con id=" + deliveryId);
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery not found with id: " + deliveryId));
+
+        if (delivery.getOrder() != null) {
+            delivery.getOrder().setDelivery(null);
         }
 
-        Order order = delivery.getOrder();
-        if(order != null) {
-            order.setDelivery(null);
-        }
-        delivery.setOrder(null);
         deliveryRepository.delete(delivery);
     }
-
-    // ===============================================================
-// 🔹 Helper method: verify driver existence
-// ===============================================================
-    private Driver verifyDriver(Long driverId) {
-        return driverRepository.findById(driverId)
-                .orElseThrow(() -> new ResourceNotFoundException("Driver no encontrado con id=" + driverId));
-    }
-
 }

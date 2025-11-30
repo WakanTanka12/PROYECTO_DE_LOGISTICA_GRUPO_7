@@ -27,12 +27,10 @@ public abstract class DeliveryMapper {
     @Mapping(source = "order.id", target = "orderId")
     @Mapping(source = "driver.id", target = "driverId")
     @Mapping(source = "route.id", target = "routeId")
-    public static DeliveryResponse toResponse(Delivery entity) {
-        return null;
-    }
+    public abstract DeliveryResponse toResponse(Delivery entity);
 
     // ✅ Request -> Entity (Manual: necesitamos buscar los objetos en la BD)
-    public static Delivery toEntity(DeliveryRequest request) {
+    public Delivery toEntity(DeliveryRequest request) {
         if (request == null) {
             return null;
         }
