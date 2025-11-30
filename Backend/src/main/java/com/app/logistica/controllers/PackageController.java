@@ -1,6 +1,7 @@
 package com.app.logistica.controllers;
 
 import com.app.logistica.dtos.Package.PackageRequest;
+import com.app.logistica.dtos.Package.PackageResponse;
 import com.app.logistica.exceptions.ResourceNotFoundException;
 import com.app.logistica.services.PackageService;
 import lombok.RequiredArgsConstructor;
@@ -18,35 +19,41 @@ public class PackageController {
 
     private final PackageService packageService;
 
+    // =========================================================
     // 🔹 Crear package dentro de una Order
+    // =========================================================
     @PostMapping("/orders/{orderId}/packages")
-    public ResponseEntity<PackageRequest> createForOrder(
+    public ResponseEntity<PackageResponse> createForOrder(
             @PathVariable Long orderId,
             @RequestBody PackageRequest dto
     ) {
-        PackageRequest saved = packageService.createForOrder(orderId, dto);
+        PackageResponse saved = packageService.createForOrder(orderId, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
+    // =========================================================
     // 🔹 Listar packages de una Order
+    // =========================================================
     @GetMapping("/orders/{orderId}/packages")
-    public ResponseEntity<List<PackageRequest>> getByOrder(@PathVariable Long orderId) {
+    public ResponseEntity<List<PackageResponse>> getByOrder(@PathVariable Long orderId) {
         return ResponseEntity.ok(packageService.getByOrder(orderId));
     }
 
+    // =========================================================
     // 🔹 CRUD general de packages
+    // =========================================================
     @GetMapping("/packages")
-    public ResponseEntity<List<PackageRequest>> getAll() {
+    public ResponseEntity<List<PackageResponse>> getAll() {
         return ResponseEntity.ok(packageService.getPackages());
     }
 
     @GetMapping("/packages/{id}")
-    public ResponseEntity<PackageRequest> getOne(@PathVariable Long id) {
+    public ResponseEntity<PackageResponse> getOne(@PathVariable Long id) {
         return ResponseEntity.ok(packageService.getPackage(id));
     }
 
     @PutMapping("/packages/{id}")
-    public ResponseEntity<PackageRequest> update(
+    public ResponseEntity<PackageResponse> update(
             @PathVariable Long id,
             @RequestBody PackageRequest dto
     ) {
@@ -59,6 +66,9 @@ public class PackageController {
         return ResponseEntity.ok("Package deleted successfully.");
     }
 
+    // =========================================================
+    // 🔹 Manejo de errores 404
+    // =========================================================
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<String> handleNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());

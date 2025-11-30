@@ -1,4 +1,4 @@
-package com.app.logistica.mappers;
+package com.app.logistica.mapperdtos;
 
 import com.app.logistica.dtos.order.OrderRequest;
 import com.app.logistica.dtos.order.OrderResponse;
