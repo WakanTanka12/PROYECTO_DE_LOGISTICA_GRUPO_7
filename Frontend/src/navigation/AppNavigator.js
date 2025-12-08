@@ -23,9 +23,6 @@ import DeliveriesScreen from "../screens/DeliveriesScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-/** ----------------------------- */
-/**  🔐 AUTH STACK (Login/Registro) */
-/** ----------------------------- */
 function AuthStack() {
     return (
         <Stack.Navigator>
@@ -43,9 +40,6 @@ function AuthStack() {
     );
 }
 
-/** ----------------------------- */
-/**  📲 TABS INTERNAS DE LA APP    */
-/** ----------------------------- */
 function AppTabs() {
     return (
         <Tab.Navigator screenOptions={{ headerShown: true }}>
@@ -61,9 +55,6 @@ function AppTabs() {
     );
 }
 
-/** ----------------------------- */
-/**  🚀 NAVEGADOR PRINCIPAL        */
-/** ----------------------------- */
 export default function AppNavigator() {
     const { isAuthenticated, loading } = useAuth();
 
