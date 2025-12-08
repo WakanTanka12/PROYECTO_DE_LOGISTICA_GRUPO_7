@@ -13,22 +13,19 @@ import { useAuth } from "../hooks/useAuth";
 
 const LoginScreen = () => {
     const { login, loading } = useAuth();
-    const [username, setUsername] = useState(""); // o email
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     const handleSubmit = async () => {
-        if (!username || !password) {
-            Alert.alert("Error", "Por favor ingresa usuario y contraseña");
+        if (!email || !password) {
+            Alert.alert("Error", "Ingresa email y contraseña");
             return;
         }
 
-        const success = await login(username, password);
+        const success = await login(email, password);
 
-        if (success) {
-            Alert.alert("Bienvenido", "Has iniciado sesión correctamente");
-            // La navegación se maneja a través de AppNavigator (stack Auth <-> App)
-        } else {
-            Alert.alert("Acceso denegado", "Credenciales inválidas. Intenta nuevamente.");
+        if (!success) {
+            Alert.alert("Acceso denegado", "Credenciales incorrectas.");
         }
     };
 
@@ -38,18 +35,18 @@ const LoginScreen = () => {
 
             <TextInput
                 style={styles.input}
-                placeholder="Username o Email"
-                value={username}
-                onChangeText={setUsername}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
                 autoCapitalize="none"
             />
 
             <TextInput
                 style={styles.input}
                 placeholder="Contraseña"
+                secureTextEntry
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry
             />
 
             <TouchableOpacity
@@ -57,52 +54,26 @@ const LoginScreen = () => {
                 onPress={handleSubmit}
                 disabled={loading}
             >
-                {loading ? (
-                    <ActivityIndicator color="#fff" />
-                ) : (
-                    <Text style={styles.buttonText}>Iniciar sesión</Text>
-                )}
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Entrar</Text>}
             </TouchableOpacity>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 24,
-        justifyContent: "center",
-        backgroundColor: "#f5f5f5",
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 24,
-        textAlign: "center",
-        color: "#2A4B9A",
-    },
+    container: { flex: 1, justifyContent: "center", padding: 24 },
+    title: { fontSize: 24, fontWeight: "bold", marginBottom: 24, textAlign: "center" },
     input: {
         backgroundColor: "#fff",
-        borderRadius: 8,
         padding: 12,
+        borderRadius: 8,
         marginBottom: 12,
         borderWidth: 1,
         borderColor: "#ddd",
     },
-    button: {
-        backgroundColor: "#2A4B9A",
-        borderRadius: 8,
-        paddingVertical: 12,
-        alignItems: "center",
-        marginTop: 8,
-    },
-    buttonDisabled: {
-        opacity: 0.7,
-    },
-    buttonText: {
-        color: "#fff",
-        fontWeight: "bold",
-    },
+    button: { backgroundColor: "#2A4B9A", padding: 12, borderRadius: 8 },
+    buttonDisabled: { opacity: 0.7 },
+    buttonText: { color: "#fff", fontWeight: "bold", textAlign: "center" },
 });
 
 export default LoginScreen;

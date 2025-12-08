@@ -7,9 +7,9 @@ import { loginUser } from "../api/authService";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);   // {id, firstname, lastname, email, role, etc.}
+    const [user, setUser] = useState(null);   // {userId, firstname, lastname, email, role, ...}
     const [token, setToken] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true); // loading global de restaurar sesión
 
     // 🔄 Restaurar sesión al iniciar la app
     useEffect(() => {
@@ -23,7 +23,6 @@ export const AuthProvider = ({ children }) => {
                     return;
                 }
 
-                // Si ya tenemos user guardado, lo usamos
                 if (storedUser) {
                     setUser(JSON.parse(storedUser));
                     setToken(storedToken);
@@ -31,14 +30,14 @@ export const AuthProvider = ({ children }) => {
                     return;
                 }
 
-                // Si tienes endpoint /auth/me, puedes usarlo para refrescar perfil
+                // Si no hay user guardado pero sí token, intentamos /auth/me
                 const res = await api.get("/auth/me");
                 setUser(res.data);
                 setToken(storedToken);
                 await AsyncStorage.setItem("user", JSON.stringify(res.data));
             } catch (err) {
                 console.warn("Sesión inválida o expirada:", err);
-                await logout(false);
+                await logout();
             } finally {
                 setLoading(false);
             }
@@ -47,14 +46,14 @@ export const AuthProvider = ({ children }) => {
         restoreSession();
     }, []);
 
-    // 🟢 Login: hace llamada a backend, guarda token + user en AsyncStorage y estado
-    const login = async (usernameOrEmail, password) => {
+    // 🟢 Login: email + password (como tu backend)
+    const login = async (email, password) => {
         try {
-            // ajusta nombres según tu backend: { username, password } o { email, password }
-            const data = await loginUser({ username: usernameOrEmail, password });
+            // tu backend espera { email, password }
+            const data = await loginUser({ email, password });
 
             const jwt = data.token;
-            const userData = data.user || data; // por si tu backend devuelve {token, user} o todo junto
+            const userData = data; // { token, userId, email, firstname, lastname, role }
 
             await AsyncStorage.setItem("token", jwt);
             await AsyncStorage.setItem("user", JSON.stringify(userData));
@@ -69,8 +68,8 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // 🔴 Logout: limpia todo y deja que la navegación te mande al Login
-    const logout = async (withDelay = false) => {
+    // 🔴 Logout: limpia todo
+    const logout = async () => {
         await AsyncStorage.multiRemove(["token", "user"]);
         setToken(null);
         setUser(null);
@@ -81,7 +80,7 @@ export const AuthProvider = ({ children }) => {
             value={{
                 user,
                 token,
-                loading,
+                loading,                   // loading global (restaurando sesión)
                 isAuthenticated: !!token && !!user,
                 login,
                 logout,

@@ -17,20 +17,23 @@ const HomeScreen = ({ navigation }) => {
     const { deliveries, loading, loadDeliveriesForDriver } = useDeliveries();
 
     useEffect(() => {
-        if (user?.id) {
-            loadDeliveriesForDriver(user.id);
+        if (user?.userId) {
+            loadDeliveriesForDriver(user.userId);
         }
     }, [user]);
 
     const onRefresh = () => {
-        if (user?.id) loadDeliveriesForDriver(user.id);
+        if (user?.userId) loadDeliveriesForDriver(user.userId);
     };
+
+    const displayName =
+        user ? `${user.firstname ?? ""} ${user.lastname ?? ""}`.trim() : "Driver";
 
     return (
         <View style={styles.container}>
             <View style={styles.topBar}>
                 <View>
-                    <Text style={styles.welcome}>Hola, {user?.name || "Driver"}</Text>
+                    <Text style={styles.welcome}>Hola, {displayName || "Driver"}</Text>
                     <Text style={styles.subtitle}>Tus entregas de hoy</Text>
                 </View>
                 <TouchableOpacity onPress={() => navigation.navigate("Usuario")}>

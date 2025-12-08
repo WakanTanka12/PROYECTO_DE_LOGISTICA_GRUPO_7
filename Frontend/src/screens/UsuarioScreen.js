@@ -6,17 +6,21 @@ import { useAuth } from "../hooks/useAuth";
 const UsuarioScreen = () => {
     const { user } = useAuth();
 
+    const fullName =
+        user ? `${user.firstname ?? ""} ${user.lastname ?? ""}`.trim() : "N/D";
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Mi Perfil</Text>
+
             <Text style={styles.label}>Nombre:</Text>
-            <Text style={styles.value}>{user?.name || "N/D"}</Text>
+            <Text style={styles.value}>{fullName || "N/D"}</Text>
 
             <Text style={styles.label}>Email:</Text>
             <Text style={styles.value}>{user?.email || "N/D"}</Text>
 
             <Text style={styles.label}>Rol:</Text>
-            <Text style={styles.value}>{user?.role || "DRIVER"}</Text>
+            <Text style={styles.value}>{user?.role || "N/D"}</Text>
         </View>
     );
 };
