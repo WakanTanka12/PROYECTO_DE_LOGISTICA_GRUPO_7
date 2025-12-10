@@ -12,13 +12,14 @@ import {
     Truck,           // Deliveries
     Package as Box,  // Packages
     UserCog,         // Drivers
-    Route as RouteIcon // Routes
+    Route as RouteIcon, // Routes
+    LogOut           // ✅ NUEVO ICONO IMPORTADO
 } from "lucide-react";
 
 const Home = () => {
     const { theme } = useTheme();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, logout } = useAuth(); // ✅ EXTRAEMOS LOGOUT AQUÍ
 
     // 🔹 Mini estadísticas simples (opcional)
     const [stats, setStats] = useState({
@@ -121,6 +122,16 @@ const Home = () => {
                 theme === "dark" ? "text-light" : "text-dark"
             }`}
         >
+            {/* ✅ BOTÓN DE LOGOUT (ARRIBA A LA DERECHA) */}
+            <div className="d-flex justify-content-end mb-3">
+                <button
+                    onClick={() => logout()}
+                    className="btn btn-danger d-flex align-items-center gap-2"
+                >
+                    <LogOut size={18} /> Logout
+                </button>
+            </div>
+
             {/* 🔹 SALUDO CON USUARIO */}
             <div className="mb-4">
                 <div className="card shadow-sm border-0">
