@@ -38,21 +38,28 @@ public class SecurityConfig {
                                 "/api/auth/register"
                         ).permitAll()
 
-                        // 🔓 Para Swagger si lo usas
+                        // 🔓 Swagger (si lo usas)
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        // 🔓 GET de toda la API públicos
+                        // 🔓 TODOS los GET de la API son públicos
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
 
-                        // 🔓 POST/PUT/DELETE de orders y deliveries públicos (para tus pruebas)
+                        // 🔓 Abrimos CRUD completo de estos módulos para pruebas desde React Web
+                        .requestMatchers("/api/customers/**").permitAll()
                         .requestMatchers("/api/orders/**").permitAll()
                         .requestMatchers("/api/deliveries/**").permitAll()
+                        .requestMatchers("/api/drivers/**").permitAll()
+                        .requestMatchers("/api/routes/**").permitAll()
+                        .requestMatchers("/api/packages/**").permitAll()
 
-                        // 🔒 El resto sigue necesitando JWT
+                        // 🔓 (Opcional) permitir preflight CORS
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // 🔒 Cualquier otra cosa sí requiere JWT
                         .anyRequest().authenticated()
                 );
 

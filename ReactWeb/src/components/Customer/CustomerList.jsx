@@ -1,3 +1,4 @@
+// src/components/customer/CustomerList.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -6,11 +7,10 @@ import {
     deleteCustomer,
 } from "../../services/CustomerService.js";
 
-const EmployeeList = () => {
+const CustomerList = () => {
     const [customers, setCustomers] = useState([]);
     const navigate = useNavigate();
 
-    /** Load all employees on mount */
     useEffect(() => {
         loadCustomers();
     }, []);
@@ -18,14 +18,13 @@ const EmployeeList = () => {
     const loadCustomers = async () => {
         try {
             const res = await getAllCustomers();
-            setCustomers(res.data);
+            setCustomers(res.data); // List<CustomerResponse>
         } catch (error) {
-            console.error("Error loading employees:", error);
-            Swal.fire("Error", "Failed to load employees", "error");
+            console.error("Error loading customers:", error);
+            Swal.fire("Error", "Failed to load customers", "error");
         }
     };
 
-    /** Delete confirmation */
     const handleDelete = (id) => {
         Swal.fire({
             title: "Are you sure?",
@@ -52,7 +51,7 @@ const EmployeeList = () => {
     return (
         <div className="container mt-4">
             <div className="d-flex justify-content-between align-items-center mb-3">
-                <h2>Employee List</h2>
+                <h2>Customer List</h2>
                 <button
                     className="btn btn-primary"
                     onClick={() => navigate("/customers/add")}
@@ -75,29 +74,24 @@ const EmployeeList = () => {
                 </thead>
                 <tbody>
                 {customers.length > 0 ? (
-                    customers.map((e) => (
-                        <tr key={e.id}>
-                            <td>{e.id}</td>
-                            <td>
-                                {e.firstName} {e.lastName}
-                            </td>
-                            <td>{e.email}</td>
-                            <td>{e.departmentName || "-"}</td>
-                            <td>
-                                {e.skillNames && e.skillNames.length > 0
-                                    ? e.skillNames.join(", ")
-                                    : "-"}
-                            </td>
+                    customers.map((c) => (
+                        <tr key={c.id}>
+                            <td>{c.id}</td>
+                            <td>{c.firstName}</td>
+                            <td>{c.lastName}</td>
+                            <td>{c.email}</td>
+                            <td>{c.phone}</td>
+                            <td>{c.address}</td>
                             <td>
                                 <Link
-                                    to={`/employees/edit/${e.id}`}
+                                    to={`/customers/edit/${c.id}`}
                                     className="btn btn-warning btn-sm me-2"
                                 >
                                     Edit
                                 </Link>
                                 <button
                                     className="btn btn-danger btn-sm"
-                                    onClick={() => handleDelete(e.id)}
+                                    onClick={() => handleDelete(c.id)}
                                 >
                                     Delete
                                 </button>
@@ -106,8 +100,8 @@ const EmployeeList = () => {
                     ))
                 ) : (
                     <tr>
-                        <td colSpan="6" className="text-center text-muted">
-                            No employees found.
+                        <td colSpan="7" className="text-center text-muted">
+                            No customers found.
                         </td>
                     </tr>
                 )}
@@ -117,4 +111,4 @@ const EmployeeList = () => {
     );
 };
 
-export default EmployeeList;
+export default CustomerList;

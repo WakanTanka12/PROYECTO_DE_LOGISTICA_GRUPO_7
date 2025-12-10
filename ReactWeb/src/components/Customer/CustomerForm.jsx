@@ -1,219 +1,268 @@
-import {useEffect, useState} from 'react'
-import {addCustomer, getCustomer, updateCustomer} from "../../services/CustomerService.js";
+import { useEffect, useState } from "react";
+import {
+    addCustomer,
+    getCustomer,
+    updateCustomer,
+} from "../../services/CustomerService.js";
 import { useNavigate, useParams } from "react-router-dom";
 
 const CustomerForm = () => {
-
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [address, setAddress] = useState('');
-
-    const navigate = useNavigate();
-
-    const {id} = useParams();
-
-    //Cargar el formulario del empleado que deseamos modificar
-    useEffect(() => {
-        if (id){
-            getCustomer(id).then((response) => {
-                console.log(response.data);
-                setFirstName(response.data.firstName);
-                setLastName(response.data.lastName);
-                setEmail(response.data.email);
-                setPhone(response.data.phone);
-                setAddress(response.data.address);
-            })
-        }
-    }, [id])
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [address, setAddress] = useState("");
 
     const [errors, setErrors] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        address: '',
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        address: "",
     });
+
+    const navigate = useNavigate();
+    const { id } = useParams();
+
+    // 🔹 Cargar para editar
+    useEffect(() => {
+        if (id) {
+            getCustomer(id)
+                .then((response) => {
+                    const c = response.data;
+                    setFirstName(c.firstName || "");
+                    setLastName(c.lastName || "");
+                    setEmail(c.email || "");
+                    setPhone(c.phone || "");
+                    setAddress(c.address || "");
+                })
+                .catch((err) => {
+                    console.error("Error al cargar customer:", err);
+                    alert(
+                        "Error al cargar el cliente. Mira la consola para más detalles."
+                    );
+                });
+        }
+    }, [id]);
+
+    function validateForm() {
+        let valid = true;
+        const copy = {
+            firstName: "",
+            lastName: "",
+            email: "",
+            phone: "",
+            address: "",
+        };
+
+        if (!firstName.trim()) {
+            copy.firstName = "First name is required";
+            valid = false;
+        }
+        if (!lastName.trim()) {
+            copy.lastName = "Last name is required";
+            valid = false;
+        }
+        if (!email.trim()) {
+            copy.email = "Email is required";
+            valid = false;
+        } else {
+            const emailRegex =
+                /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                copy.email = "Email is not correct";
+                valid = false;
+            }
+        }
+        if (!phone.trim()) {
+            copy.phone = "Phone is required";
+            valid = false;
+        } else {
+            const phoneRegex = /^[67][0-9]{7}$/;
+            if (!phoneRegex.test(phone)) {
+                copy.phone = "Phone is invalid";
+                valid = false;
+            }
+        }
+        if (!address.trim()) {
+            copy.address = "Address is required";
+            valid = false;
+        }
+
+        setErrors(copy);
+        return valid;
+    }
 
     function saveCustomerOrUpdate(e) {
         e.preventDefault();
 
-        console.log("Customer ID BEFORE:",id);
+        if (!validateForm()) return;
 
-        if (validateForm()){
-            const customer = {firstName, lastName, email, phone, address};
+        const customer = { firstName, lastName, email, phone, address };
 
-            console.log("Customer ID AFTER:",id);
-
-            if (id){
-                updateCustomer(id, customer).then((response) => {
-                    console.log(response.data);
-                    navigate('/customers');
-                }).catch((error) => {
-                    console.log(error);
+        if (id) {
+            // 🔄 UPDATE
+            updateCustomer(id, customer)
+                .then((res) => {
+                    console.log("Customer updated:", res.data);
+                    navigate("/customers");
                 })
-            } else {
-                addCustomer(customer).then((response)   => {
-                    console.log(response.data);
-                    navigate('/customers');
-
-                }).catch(error => {
-                    console.log(error);
+                .catch((error) => {
+                    console.error("Error UPDATE:", error);
+                    alert(
+                        `Error al actualizar: ${
+                            error.response?.status
+                        } - ${JSON.stringify(error.response?.data || "")}`
+                    );
+                });
+        } else {
+            // 🆕 CREATE
+            addCustomer(customer)
+                .then((res) => {
+                    console.log("Customer created:", res.data);
+                    navigate("/customers");
                 })
-            }
+                .catch((error) => {
+                    console.error("Error CREATE:", error);
+                    alert(
+                        `Error al crear: ${
+                            error.response?.status
+                        } - ${JSON.stringify(error.response?.data || "")}`
+                    );
+                });
         }
     }
 
-    function validateForm(){
-        let valid = true;
-
-        const errorsCopy = {...errors};
-
-        if (firstName.trim()) {
-            errorsCopy.firstName = '';
-        } else {
-            errorsCopy.firstName = 'First name is required';
-            valid = false;
-        }
-
-        if (lastName.trim()) {
-            errorsCopy.lastName = '';
-        } else {
-            errorsCopy.lastName = 'Last name is required';
-            valid = false;
-        }
-
-        if (email.trim()) {
-            errorsCopy.email = '';
-        } else {
-            errorsCopy.email = 'Email is required';
-            valid = false;
-        }
-
-        if (email.trim()) {
-            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if (!emailRegex.test(email)) {
-                errorsCopy.email = 'Email is not correct';
-                valid = false;
-            }
-        }
-
-        if (phone.trim()) {
-            errorsCopy.phone = '';
-        } else {
-            errorsCopy.phone = 'Phone is required';
-            valid = false;
-        }
-
-        if (phone.trim()) {
-            const phoneRegex = /^[67][0-9]{7}$/;
-            if (!phoneRegex.test(phone)) {
-                errorsCopy.phone = 'Phone is invalid';
-                valid = false;
-            }
-        }
-
-
-        if (address.trim()) {
-            errorsCopy.address = '';
-        } else {
-            errorsCopy.address = 'Address is required';
-            valid = false;
-        }
-
-        setErrors(errorsCopy);
-        return valid;
+    function pageTitle() {
+        return (
+            <h2 className="text-center">
+                {id ? "Update Customer" : "Add Customer"}
+            </h2>
+        );
     }
-
-
-    function pageTitle(){
-        if (id){
-            return <h2 className='text-center'>Update Employee</h2>
-        } else{
-            return <h2 className='text-center'>Add Employee</h2>
-        }
-    }
-
 
     return (
         <div className="container">
-            {/*<br/> Salta una linea*/}
-            <br/>
+            <br />
             <div className="row">
                 <div className="card col-md-6 offset-md-3">
-                    {
-                        pageTitle()
-                    }
+                    {pageTitle()}
                     <div className="card-body">
-                        <form>
+                        <form onSubmit={saveCustomerOrUpdate}>
                             <div className="form-group mb-2">
                                 <label className="form-label">First Name</label>
                                 <input
-                                    type='text'
+                                    type="text"
                                     name="firstName"
                                     value={firstName}
                                     placeholder="Enter First Name"
-                                    className={`form-control ${errors.firstName ? 'is-invalid' : ''}`}
-                                    onChange={(e) => setFirstName(e.target.value)}
+                                    className={`form-control ${
+                                        errors.firstName ? "is-invalid" : ""
+                                    }`}
+                                    onChange={(e) =>
+                                        setFirstName(e.target.value)
+                                    }
                                 />
-                                {errors.firstName && <div className="invalid-feedback">{errors.firstName}</div>}
+                                {errors.firstName && (
+                                    <div className="invalid-feedback">
+                                        {errors.firstName}
+                                    </div>
+                                )}
                             </div>
+
                             <div className="form-group mb-2">
                                 <label className="form-label">Last Name</label>
                                 <input
-                                    type='text'
+                                    type="text"
                                     name="lastName"
                                     value={lastName}
                                     placeholder="Enter Last Name"
-                                    className={`form-control ${errors.lastName ? 'is-invalid' : ''}`}
-                                    onChange={(e) => setLastName(e.target.value)}
+                                    className={`form-control ${
+                                        errors.lastName ? "is-invalid" : ""
+                                    }`}
+                                    onChange={(e) =>
+                                        setLastName(e.target.value)
+                                    }
                                 />
-                                {errors.lastName && <div className="invalid-feedback">{errors.lastName}</div>}
+                                {errors.lastName && (
+                                    <div className="invalid-feedback">
+                                        {errors.lastName}
+                                    </div>
+                                )}
                             </div>
+
                             <div className="form-group mb-2">
                                 <label className="form-label">Email</label>
                                 <input
-                                    type='text'
+                                    type="text"
                                     name="email"
                                     value={email}
                                     placeholder="Enter Email"
-                                    className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    className={`form-control ${
+                                        errors.email ? "is-invalid" : ""
+                                    }`}
+                                    onChange={(e) =>
+                                        setEmail(e.target.value)
+                                    }
                                 />
-                                {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                                {errors.email && (
+                                    <div className="invalid-feedback">
+                                        {errors.email}
+                                    </div>
+                                )}
                             </div>
+
                             <div className="form-group mb-2">
                                 <label className="form-label">Phone</label>
                                 <input
-                                    type='text'
+                                    type="text"
                                     name="phone"
                                     value={phone}
                                     placeholder="Enter Phone"
-                                    className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
-                                    onChange={(e) => setPhone(e.target.value)}
+                                    className={`form-control ${
+                                        errors.phone ? "is-invalid" : ""
+                                    }`}
+                                    onChange={(e) =>
+                                        setPhone(e.target.value)
+                                    }
                                 />
-                                {errors.phone && <div className="invalid-feedback">{errors.phone}</div>}
+                                {errors.phone && (
+                                    <div className="invalid-feedback">
+                                        {errors.phone}
+                                    </div>
+                                )}
                             </div>
+
                             <div className="form-group mb-2">
                                 <label className="form-label">Address</label>
                                 <input
-                                    type='text'
+                                    type="text"
                                     name="address"
                                     value={address}
                                     placeholder="Enter Address"
-                                    className={`form-control ${errors.address ? 'is-invalid' : ''}`}
-                                    onChange={(e) => setAddress(e.target.value)}
+                                    className={`form-control ${
+                                        errors.address ? "is-invalid" : ""
+                                    }`}
+                                    onChange={(e) =>
+                                        setAddress(e.target.value)
+                                    }
                                 />
-                                {errors.address && <div className="invalid-feedback">{errors.address}</div>}
+                                {errors.address && (
+                                    <div className="invalid-feedback">
+                                        {errors.address}
+                                    </div>
+                                )}
                             </div>
-                            <button type="submit" className="btn btn-success"
-                                    onClick={saveCustomerOrUpdate}>Submit</button>
+
+                            <button type="submit" className="btn btn-success">
+                                Submit
+                            </button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-    )
-}
-export default CustomerForm
+    );
+};
+
+export default CustomerForm;
