@@ -17,14 +17,15 @@ import {
 } from "../api/customersApi";
 import { getOrdersByCustomer } from "../api/ordersApi";
 
-// Devuelve un nombre legible con cualquiera de los campos que existan
+// 🔹 Nombre legible usando firstName / lastName
 const getCustomerDisplayName = (customer) => {
+    const fullName = `${customer.firstName ?? ""} ${customer.lastName ?? ""}`.trim();
+    if (fullName) return fullName;
+
+    // Por si en algún momento existiera "name"
     if (customer.name && customer.name.trim() !== "") {
         return customer.name;
     }
-
-    const fullName = `${customer.firstName ?? ""} ${customer.lastName ?? ""}`.trim();
-    if (fullName) return fullName;
 
     return `Cliente #${customer.id}`;
 };
@@ -35,10 +36,13 @@ export default function CustomersScreen() {
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
 
+    // ✅ AHORA usamos firstName, lastName, email, phone, address
     const [form, setForm] = useState({
         id: null,
-        name: "",
+        firstName: "",
+        lastName: "",
         email: "",
+        phone: "",
         address: "",
     });
 
@@ -47,7 +51,7 @@ export default function CustomersScreen() {
         try {
             setLoading(true);
             const res = await getAllCustomers();
-            setCustomers(res.data); // CustomerResponse[]
+            setCustomers(res.data); // List<CustomerResponse>
         } catch (err) {
             console.error(err);
             Alert.alert("Error", "No se pudieron cargar los clientes");
@@ -85,11 +89,14 @@ export default function CustomersScreen() {
         });
     }, [customers]);
 
+    // 🔹 Editar: rellenar el formulario con firstName/lastName...
     const handleEdit = (customer) => {
         setForm({
             id: customer.id,
-            name: customer.name || "",
+            firstName: customer.firstName || "",
+            lastName: customer.lastName || "",
             email: customer.email || "",
+            phone: customer.phone || "",
             address: customer.address || "",
         });
     };
@@ -114,14 +121,17 @@ export default function CustomersScreen() {
     };
 
     const handleSubmit = async () => {
-        if (!form.name || !form.email) {
-            Alert.alert("Error", "Nombre y email son obligatorios");
+        if (!form.firstName || !form.lastName || !form.email) {
+            Alert.alert("Error", "Nombre, apellido y email son obligatorios");
             return;
         }
 
+        // ✅ Payload alineado con tu CustomerRequest del backend
         const payload = {
-            name: form.name,
+            firstName: form.firstName,
+            lastName: form.lastName,
             email: form.email,
+            phone: form.phone,
             address: form.address,
         };
 
@@ -134,7 +144,16 @@ export default function CustomersScreen() {
                 await addCustomer(payload);
             }
 
-            setForm({ id: null, name: "", email: "", address: "" });
+            // Limpiar form
+            setForm({
+                id: null,
+                firstName: "",
+                lastName: "",
+                email: "",
+                phone: "",
+                address: "",
+            });
+
             await loadCustomers();
         } catch (err) {
             console.error(err);
@@ -147,7 +166,9 @@ export default function CustomersScreen() {
     const renderItem = ({ item }) => (
         <View style={styles.card}>
             <Text style={styles.title}>{getCustomerDisplayName(item)}</Text>
+
             {item.email && <Text style={styles.text}>Email: {item.email}</Text>}
+            {item.phone && <Text style={styles.text}>Teléfono: {item.phone}</Text>}
             {item.address && (
                 <Text style={styles.text}>Dirección: {item.address}</Text>
             )}
@@ -204,12 +225,21 @@ export default function CustomersScreen() {
                 <Text style={styles.formTitle}>
                     {form.id ? "Editar cliente" : "Nuevo cliente"}
                 </Text>
+
                 <TextInput
                     style={styles.input}
                     placeholder="Nombre"
-                    value={form.name}
+                    value={form.firstName}
                     onChangeText={(text) =>
-                        setForm((f) => ({ ...f, name: text }))
+                        setForm((f) => ({ ...f, firstName: text }))
+                    }
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Apellido"
+                    value={form.lastName}
+                    onChangeText={(text) =>
+                        setForm((f) => ({ ...f, lastName: text }))
                     }
                 />
                 <TextInput
@@ -223,12 +253,22 @@ export default function CustomersScreen() {
                 />
                 <TextInput
                     style={styles.input}
+                    placeholder="Teléfono"
+                    value={form.phone}
+                    keyboardType="phone-pad"
+                    onChangeText={(text) =>
+                        setForm((f) => ({ ...f, phone: text }))
+                    }
+                />
+                <TextInput
+                    style={styles.input}
                     placeholder="Dirección"
                     value={form.address}
                     onChangeText={(text) =>
                         setForm((f) => ({ ...f, address: text }))
                     }
                 />
+
                 <TouchableOpacity
                     style={[styles.button, styles.saveButton]}
                     onPress={handleSubmit}
