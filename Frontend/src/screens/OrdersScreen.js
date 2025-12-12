@@ -108,6 +108,12 @@ export default function OrdersScreen() {
             return;
         }
 
+        const priceRegex = /^[0-9]+(\.[0-9]+)?$/;
+
+        if (!priceRegex.test(form.price)) {
+            Alert.alert("Error", "El precio debe ser un número válido (sin letras)");
+            return;
+        }
         
         const priceNumber = form.price ? Number(form.price) : 0;
 
