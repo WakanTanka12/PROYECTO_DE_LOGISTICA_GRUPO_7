@@ -114,7 +114,25 @@ export default function OrdersScreen() {
             Alert.alert("Error", "El precio debe ser un número válido (sin letras)");
             return;
         }
-        
+        if (!form.orderDate || form.orderDate.trim() === "") {
+            Alert.alert("Error", "La fecha es obligatoria");
+            return;
+        }
+
+// 🔹 Regex para YYYY-MM-DD
+        const dateRegexISO = /^\d{4}-\d{2}-\d{2}$/;
+
+// 🔹 Regex para DD/MM/YYYY (si el usuario escribe así)
+        const dateRegexSlash = /^\d{2}\/\d{2}\/\d{4}$/;
+
+// 🔹 Validar formato correcto
+        if (!dateRegexISO.test(form.orderDate) && !dateRegexSlash.test(form.orderDate)) {
+            Alert.alert(
+                "Error",
+                "La fecha debe tener un formato válido (YYYY-MM-DD o DD/MM/YYYY)"
+            );
+            return;
+        }
         const priceNumber = form.price ? Number(form.price) : 0;
 
         const payload = {
