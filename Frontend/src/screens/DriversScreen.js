@@ -31,6 +31,7 @@ export default function DriversScreen() {
         firstName: "",
         lastName: "",
     });
+    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
     // 🔹 Cargar todos los conductores
     const loadDrivers = async () => {
@@ -102,6 +103,22 @@ export default function DriversScreen() {
     const handleSubmit = async () => {
         if (!form.firstName || !form.lastName) {
             Alert.alert("Error", "El nombre completo es obligatorio");
+            return;
+        }
+        if (!form.firstName || !nameRegex.test(form.firstName)) {
+            Alert.alert(
+                "Error",
+                "El nombre solo puede contener letras y espacios"
+            );
+            return;
+        }
+
+        // 🔹 Validar lastName
+        if (!form.lastName || !nameRegex.test(form.lastName)) {
+            Alert.alert(
+                "Error",
+                "El apellido solo puede contener letras y espacios"
+            );
             return;
         }
 
